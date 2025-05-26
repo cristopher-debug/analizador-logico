@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analizador de Afirmaciones Lógicas</title>
+    <link rel="stylesheet" href="assets/main.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="calculator">
+        <div class="display">
+          <div id="screen">Ejemplo: ~(p∧q)→s</div>
+        </div>
+
+        <div class="buttons">
+          <div class="row">
+            <button class="btn btn-clear">AC</button>
+            <button class="btn btn-del">DEL</button>
+            <button class="btn">(</button>
+            <button class="btn">)</button>
+          </div>
+
+          <div class="row">
+            <button class="btn">~</button>
+            <button class="btn">∧</button>
+            <button class="btn">∨</button>
+            <button class="btn">→</button>
+          </div>
+
+          <div class="row">
+            <button class="btn">p</button>
+            <button class="btn">q</button>
+            <button class="btn">↔</button>
+            <button class="btn">⊕</button>
+          </div>
+
+          <div class="row">
+            <button class="btn">r</button>
+            <button class="btn">s</button>
+            <button class="btn btn-equals">=</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="truthTable" class="truth-table-container">
+        <!-- La tabla de verdad se generará aquí -->
+      </div>
+
+      <div class="statement-analyzer">
+        <h2>Analizador de Afirmaciones</h2>
+        <div class="input-group">
+          <textarea id="statementsInput" placeholder="Ingresa tus afirmaciones lógicas, una por línea. Ejemplo: 
+Si no soy un gigante entonces puedo comprender Matemáticas
+Si soy ecológico y comprendo Matemáticas entonces soy un gigante"></textarea>
+        </div>
+        <div class="input-group">
+          <button id="analyzeBtn" class="btn-analyze">Analizar Afirmaciones</button>
+        </div>
+        <div id="variableMapping" class="variable-mapping">
+          <!-- Mapeo de variables se mostrará aquí -->
+        </div>
+        <div id="logicalExpressions" class="logical-expressions">
+          <!-- Expresiones lógicas se mostrarán aquí -->
+        </div>
+        <div id="conclusions" class="conclusions">
+          <!-- Conclusiones se mostrarán aquí -->
+        </div>
+      </div>
+    </div>
+
+    <script src="./assets/main.js"></script>
+  </body>
+</html>
