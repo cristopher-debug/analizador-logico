@@ -1,101 +1,106 @@
 class TruthTableCalculator {
     constructor() {
-        this.expression = '';
-        this.screen = document.getElementById('screen');
-        this.truthTableContainer = document.getElementById('truthTable');
-        this.statementsInput = document.getElementById('statementsInput');
-        this.analyzeBtn = document.getElementById('analyzeBtn');
-        this.variableMappingDiv = document.getElementById('variableMapping');
-        this.logicalExpressionsDiv = document.getElementById('logicalExpressions');
-        this.conclusionsDiv = document.getElementById('conclusions');
+        this.expression = '';  //Inicializa la propiedad expression como una cadena vacía. Esta almacenará la expresión lógica actual.
+        this.screen = document.getElementById('screen'); // Obtiene una referencia al elemento HTML con id 'screen' (la pantalla de la calculadora) y la guarda en this.screen.
+        this.truthTableContainer = document.getElementById('truthTable');  //Obtiene referencia al contenedor donde se mostrará la tabla de verdad.
+        this.statementsInput = document.getElementById('statementsInput'); //Obtiene referencia al área de texto donde el usuario ingresa las afirmaciones.
+        this.analyzeBtn = document.getElementById('analyzeBtn'); // Obtiene referencia al botón "Analizar Afirmaciones".
+        this.variableMappingDiv = document.getElementById('variableMapping'); //Obtiene referencia al div donde se mostrará el mapeo de variables.
+        this.logicalExpressionsDiv = document.getElementById('logicalExpressions'); //Obtiene referencia al div donde se mostrarán las expresiones lógicas convertidas.
+        this.conclusionsDiv = document.getElementById('conclusions'); //Obtiene referencia al div donde se mostrarán las conclusiones del análisis.
         
-        this.initializeButtons();
-        this.initializeAnalyzer();
+        this.initializeButtons(); //Llama a los métodos para inicializar los botones de la calculadora y el analizador de afirmaciones.
+        this.initializeAnalyzer(); //Llama a los métodos para inicializar el analizador de afirmaciones.
     }
-
-    initializeButtons() {
+    //Inicialización de Botones
+    initializeButtons() {  //Inicializa la propiedad expression como una cadena vacía. Esta almacenará la expresión lógica actual.
         const buttons = document.querySelectorAll('.btn');
-        buttons.forEach(button => {
-            button.addEventListener('click', () => this.handleButton(button.textContent));
+        buttons.forEach(button => {  //Para cada botón, agrega un event listener que ejecuta handleButton con el texto del botón cuando se hace clic.
+            button.addEventListener('click', () => this.handleButton(button.textContent)); 
         });
     }
-
-    initializeAnalyzer() {
-        this.analyzeBtn.addEventListener('click', () => this.analyzeStatements());
+    //Inicialización del Analizador 
+    initializeAnalyzer() { //Agrega un event listener al botón de análisis que ejecuta analyzeStatements() cuando se hace clic.
+        this.analyzeBtn.addEventListener('click', () => this.analyzeStatements()); 
     }
 
-    handleButton(value) {
+    //Manejo de Botones
+
+    handleButton(value) { //Método(funcion) que maneja los clics en botones según su texto:
         switch(value) {
-            case 'AC':
+            case 'AC': //'AC': limpia todo
                 this.clear();
                 break;
-            case 'DEL':
+            case 'DEL': //'DEL': borra el último carácter
                 this.delete();
                 break;
-            case '=':
+            case '=': //'=': genera la tabla de verdad
                 this.generateTruthTable();
                 break;
             default:
                 this.addToExpression(value);
         }
     }
+    //Métodos(funciones) de Manipulación de Expresiones 
 
-    clear() {
+    clear() {  //Limpia la expresión actual, actualiza la pantalla y borra la tabla de verdad.
         this.expression = '';
         this.updateDisplay();
         this.truthTableContainer.innerHTML = '';
     }
 
-    delete() {
+    delete() { // Elimina el último carácter de la expresión usando slice(0, -1).
         this.expression = this.expression.slice(0, -1);
         this.updateDisplay();
     }
 
-    addToExpression(value) {
+    addToExpression(value) { //Añade un valor al final de la expresión actual.
         this.expression += value;
         this.updateDisplay();
     }
 
-    updateDisplay() {
+    updateDisplay() { //Actualiza el contenido de la pantalla. Si no hay expresión, muestra un ejemplo.
         this.screen.textContent = this.expression || 'Ejemplo: ~(p∧q)→s';
     }
 
-    evaluateExpression(values) {
+    //Evaluación de Expresiones Lógicas
+
+    evaluateExpression(values) { //Reemplaza las variables (p, q, r, s) con sus valores booleanos correspondientes.
         const exp = this.expression.replace(/p|q|r|s/g, match => values[match]);
         
-        const evaluate = (expr) => {
+        const evaluate = (expr) => { //Define una función interna recursiva para evaluar expresiones y elimina espacios.
             expr = expr.trim();
             
-            if (expr.startsWith('~')) {
+            if (expr.startsWith('~')) { //Si la expresión empieza con '~' (negación), retorna la negación de evaluar el resto.
                 return !evaluate(expr.slice(1));
             }
 
-            while (expr.includes('(')) {
+            while (expr.includes('(')) { //Evalúa recursivamente el contenido de los paréntesis más internos hasta que no queden paréntesis.
                 expr = expr.replace(/\(([^()]+)\)/g, (_, group) => evaluate(group));
             }
 
-            if (expr.includes('∧')) {
+            if (expr.includes('∧')) { //Si hay conjunción (∧), divide la expresión y retorna el AND lógico de ambas partes.
                 const [left, right] = expr.split('∧');
                 return evaluate(left) && evaluate(right);
             }
-            if (expr.includes('∨')) {
+            if (expr.includes('∨')) { // Si hay disyunción (∨), retorna el OR lógico.
                 const [left, right] = expr.split('∨');
                 return evaluate(left) || evaluate(right);
             }
-            if (expr.includes('→')) {
+            if (expr.includes('→')) { //Si hay implicación (→), usa la fórmula: ¬p ∨ q (equivalente a p → q).
                 const [left, right] = expr.split('→');
                 return !evaluate(left) || evaluate(right);
             }
-            if (expr.includes('↔')) {
+            if (expr.includes('↔')) { //Si hay bicondicional (↔), retorna true si ambos lados tienen el mismo valor.
                 const [left, right] = expr.split('↔');
                 return evaluate(left) === evaluate(right);
             }
-            if (expr.includes('⊕')) {
+            if (expr.includes('⊕')) { // Si hay XOR (⊕), retorna true si los valores son diferentes.
                 const [left, right] = expr.split('⊕');
                 return evaluate(left) !== evaluate(right);
             }
 
-            return expr === 'true';
+            return expr === 'true'; // Si no hay operadores, compara si la expresión es literalmente 'true
         };
 
         try {
@@ -105,22 +110,24 @@ class TruthTableCalculator {
         }
     }
 
-    generateTruthTable() {
-        if (!this.expression) return;
+    //Generación de Tablas de Verdad
+
+    generateTruthTable() { 
+        if (!this.expression) return; //Extrae variables únicas de la expresión usando regex y las ordena. Si no hay variables, termina.
 
         const variables = [...new Set(this.expression.match(/[pqrs]/g) || [])].sort();
         if (variables.length === 0) return;
 
-        const rows = [];
+        const rows = []; //Inicializa array para filas y calcula número de combinaciones usando bit shifting (2^n).
         const combinations = 1 << variables.length;
 
-        for (let i = 0; i < combinations; i++) {
+        for (let i = 0; i < combinations; i++) { //Para cada combinación, crea un objeto con valores booleanos usando operaciones bit a bit.
             const values = {};
             variables.forEach((variable, index) => {
                 values[variable] = Boolean(i & (1 << (variables.length - 1 - index)));
             });
             
-            const result = this.evaluateExpression(values);
+            const result = this.evaluateExpression(values); //Evalúa la expresión con estos valores y añade el resultado si es válido.
             if (result !== null) {
                 rows.push({ values, result });
             }
@@ -129,7 +136,9 @@ class TruthTableCalculator {
         this.renderTruthTable(variables, rows);
     }
 
-    renderTruthTable(variables, rows) {
+    //Renderizado de Tabla 
+
+    renderTruthTable(variables, rows) { //Construye el HTML de la tabla con headers para variables y la expresión.
         let html = `
             <table>
                 <thead>
@@ -141,7 +150,7 @@ class TruthTableCalculator {
                 <tbody>
         `;
 
-        rows.forEach(row => {
+        rows.forEach(row => { //Para cada fila, añade celdas con valores V/F y clases CSS apropiadas.
             html += '<tr>';
             variables.forEach(variable => {
                 const value = row.values[variable];
@@ -164,7 +173,8 @@ class TruthTableCalculator {
     }
 
     // Nuevas funciones para el analizador de afirmaciones
-    analyzeStatements() {
+
+    analyzeStatements() { //Obtiene las afirmaciones del textarea, las divide por líneas, las procesa y muestra los resultados.
         const statements = this.statementsInput.value.trim();
         if (!statements) return;
 
@@ -176,14 +186,16 @@ class TruthTableCalculator {
         this.analyzeLogicalExpressions(logicalExpressions, variables);
     }
 
-    parseStatements(statements) {
+    //Parseo de Afirmaciones
+
+    parseStatements(statements) { //Define patrones regex para identificar proposiciones simples en español.
         // Primero identificamos todas las proposiciones simples
         const propositionPatterns = [
             /(?:soy|es|tengo|tiene|puedo|puede)\s+([a-zA-ZáéíóúñÑ\s]+)/gi,
             /([a-zA-ZáéíóúñÑ\s]+)\s+(?:es|son)/gi
         ];
         
-        const allPropositions = new Set();
+        const allPropositions = new Set(); // Extrae todas las proposiciones únicas de las afirmaciones usando los patrones regex.
         
         statements.forEach(statement => {
             propositionPatterns.forEach(pattern => {
@@ -194,8 +206,8 @@ class TruthTableCalculator {
             });
         });
         
-        // Asignamos variables (p, q, r, s, etc.) a cada proposición
-        const variableLetters = ['p', 'q', 'r', 's', 't', 'u', 'v', 'w'];
+       
+        const variableLetters = ['p', 'q', 'r', 's', 't', 'u', 'v', 'w']; // Asignamos variables (p, q, r, s, etc.) a cada proposición
         const variables = {};
         let index = 0;
         
@@ -206,8 +218,8 @@ class TruthTableCalculator {
             }
         });
         
-        // Ahora convertimos cada afirmación a lógica
-        const logicalExpressions = statements.map(statement => {
+       
+        const logicalExpressions = statements.map(statement => {  //Convierte cada afirmación reemplazando proposiciones con variables lógicas.
             // Convertir a minúsculas para facilitar el procesamiento
             let processed = statement.toLowerCase();
             
@@ -217,7 +229,7 @@ class TruthTableCalculator {
                 processed = processed.replace(regex, variable);
             });
             
-            // Reemplazar conectores naturales con operadores lógicos
+            // Reemplaza conectores lógicos en español con símbolos lógicos.
             processed = processed.replace(/\bsi\s+(.*?)\s+entonces\s+(.*?)/g, '($1) → ($2)');
             processed = processed.replace(/\bno\s+([a-z])/g, '~$1');
             processed = processed.replace(/\by\b/g, '∧');
@@ -237,6 +249,13 @@ class TruthTableCalculator {
         
         return { variables, logicalExpressions };
     }
+
+    //Métodos de Visualización
+
+    //Los métodos displayVariableMapping, displayLogicalExpressions y analyzeLogicalExpressions construyen HTML dinámicamente para mostrar:
+        //El mapeo de variables a proposiciones
+        //Las expresiones lógicas convertidas
+        //El análisis de cada expresión (tautología, contradicción o contingencia)
 
     displayVariableMapping(variables) {
         let html = '<h3>Variables Proposicionales</h3>';
@@ -337,7 +356,7 @@ class TruthTableCalculator {
     }
 }
 
-// Inicializar la calculadora cuando se cargue la página
+//  Espera a que el DOM esté completamente cargado antes de crear una instancia de la calculadora.
 document.addEventListener('DOMContentLoaded', () => {
     new TruthTableCalculator();
 });
